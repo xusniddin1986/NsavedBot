@@ -14,12 +14,16 @@ BOT_TOKEN = "8501659003:AAGpaNmx-sJuCBbUSmXwPJEzElzWGBeZAWY"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 CHANNEL_USERNAME = "@aclubnc"
-CAPTION_TEXT = "Telegramda video yuklab beradigan eng zo'r botlardan biri 🚀 | @Nsaved_bot"
+CAPTION_TEXT = (
+    "Telegramda video yuklab beradigan eng zo'r botlardan biri 🚀 | @Nsaved_bot"
+)
+
 
 # ---------------- HOME PAGE -----------------
 @app.route("/")
 def home():
     return "Bot ishlayapti! 🔥"
+
 
 # ---------------- /start handler -----------------
 @bot.message_handler(commands=["start"])
@@ -32,7 +36,7 @@ def start(message):
         if member.status in ["creator", "administrator", "member"]:
             bot.send_message(
                 message.chat.id,
-                "Siz kanalga obuna bo‘ldingiz ✅\n\nInstagramdan video linkini yuboring 🚀"
+                "Siz kanalga obuna bo‘ldingiz ✅\n\nInstagramdan video linkini yuboring 🚀",
             )
             return
         else:
@@ -43,20 +47,16 @@ def start(message):
         markup.add(
             InlineKeyboardButton(
                 "📢 Kanalga obuna bo‘ling",
-                url=f"https://t.me/{CHANNEL_USERNAME.strip('@')}"
+                url=f"https://t.me/{CHANNEL_USERNAME.strip('@')}",
             )
         )
-        markup.add(
-            InlineKeyboardButton(
-                "✅ Obuna bo‘ldim",
-                callback_data="subscribed"
-            )
-        )
+        markup.add(InlineKeyboardButton("✅ Obuna bo‘ldim", callback_data="subscribed"))
         bot.send_message(
             message.chat.id,
             f"❗ Botdan foydalanish uchun kanalga obuna bo‘ling: {CHANNEL_USERNAME}",
-            reply_markup=markup
+            reply_markup=markup,
         )
+
 
 # ---------------- Callback handler -----------------
 @bot.callback_query_handler(func=lambda call: True)
@@ -69,12 +69,17 @@ def callback_inline(call: CallbackQuery):
                 bot.answer_callback_query(call.id, "Obuna tasdiqlandi! ✅")
                 bot.send_message(
                     call.message.chat.id,
-                    "Siz kanalga obuna bo‘ldingiz! ✅\n\nInstagramdan link yuboring 🚀"
+                    "Siz kanalga obuna bo‘ldingiz! ✅\n\nInstagramdan link yuboring 🚀",
                 )
             else:
-                bot.answer_callback_query(call.id, "❌ Hali obuna bo‘lmadiz!", show_alert=True)
+                bot.answer_callback_query(
+                    call.id, "❌ Hali obuna bo‘lmadiz!", show_alert=True
+                )
         except:
-            bot.answer_callback_query(call.id, "❌ Xatolik! Qayta urinib ko‘ring.", show_alert=True)
+            bot.answer_callback_query(
+                call.id, "❌ Xatolik! Qayta urinib ko‘ring.", show_alert=True
+            )
+
 
 # ---------------- Video yuklash handler -----------------
 @bot.message_handler(func=lambda m: True)
@@ -105,12 +110,40 @@ def download_instagram_video(message):
         bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=loading_msg.message_id,
-            text=f"❌ Video topilmadi yoki link noto‘g‘ri!\n{e}"
+            text=f"❌ Video topilmadi yoki link noto‘g‘ri!\n{e}",
         )
+
+
+# ---------------- /help handler -----------------
+@bot.message_handler(commands=["help"])
+def help_command(message):
+    help_text = (
+        "🛠️ *Bot yordamchisi*\n\n"
+        "/start - Botni ishga tushurish\n"
+        "/help - Yordam ma'lumotlari\n"
+        "/about - Bot haqida ma'lumot\n\n"
+        "Instagramdan video linkini yuborib videoni sifatli yuklab olishingiz mumkin 🚀"
+    )
+    bot.send_message(message.chat.id, help_text, parse_mode="Markdown")
+
+
+# ---------------- /about handler -----------------
+@bot.message_handler(commands=["about"])
+def about_command(message):
+    about_text = (
+        "🤖 *Nsaved Bot*\n\n"
+        "Instagram va Telegram linklardan video yuklab beradigan bot.\n"
+        "Botda biror muammo bo'lsa: @thexamidovs"
+        "Telegram kanal: @aclubnc"
+        "Dasturchi: Nabiyulloh\n"
+    )
+    bot.send_message(message.chat.id, about_text, parse_mode="Markdown")
+
 
 # ---------------- BOTNI THREAD ICHIDA ISHLATISH -----------------
 def run_bot():
     bot.infinity_polling()
+
 
 threading.Thread(target=run_bot).start()
 
