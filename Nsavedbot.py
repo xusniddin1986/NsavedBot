@@ -4,9 +4,10 @@ from yt_dlp import YoutubeDL
 import os
 import uuid
 
-# ---------------- Token -----------------
-BOT_TOKEN = os.environ.get("8501659003:AAGpaNmx-sJuCBbUSmXwPJEzElzWGBeZAWY")  # Environment variable
+# --- Token ---
+BOT_TOKEN = "8501659003:AAGpaNmx-sJuCBbUSmXwPJEzElzWGBeZAWY"
 bot = telebot.TeleBot(BOT_TOKEN)
+
 
 CHANNEL_USERNAME = "@aclubnc"
 CAPTION_TEXT = "Telegramda video yuklab beradigan eng zo'r bot | @Nsaved_bot"
