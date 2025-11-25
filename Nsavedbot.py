@@ -1,3 +1,4 @@
+from flask import flask
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from yt_dlp import YoutubeDL
@@ -7,6 +8,16 @@ import uuid
 # --- Token ---
 BOT_TOKEN = "8501659003:AAGpaNmx-sJuCBbUSmXwPJEzElzWGBeZAWY"
 bot = telebot.TeleBot(BOT_TOKEN)
+
+threading.Thread(target=lambda: bot.infinity_polling()).start()
+
+@app.route("/")
+def home():
+    return "Bot ishlayapti!"
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
 
 CHANNEL_USERNAME = "@aclubnc"
