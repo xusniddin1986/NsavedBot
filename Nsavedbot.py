@@ -1,10 +1,9 @@
-from flask import Flask
+from flask import Flask, request
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from yt_dlp import YoutubeDL
 import os
 import uuid
-import threading
 
 # --- Flask App ---
 app = Flask(__name__)
@@ -18,12 +17,18 @@ CAPTION_TEXT = (
     "Telegramda video yuklab beradigan eng zo'r botlardan biri 🚀 | @Nsaved_bot"
 )
 
-
 # ---------------- HOME PAGE -----------------
 @app.route("/")
 def home():
     return "Bot ishlayapti! 🔥"
 
+# ---------------- TELEGRAM WEBHOOK ENDPOINT -----------------
+@app.route("/telegram_webhook", methods=["POST"])
+def telegram_webhook():
+    json_str = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return "ok", 200
 
 # ---------------- /start handler -----------------
 @bot.message_handler(commands=["start"])
@@ -32,7 +37,6 @@ def start(message):
 
     try:
         member = bot.get_chat_member(CHANNEL_USERNAME, user_id)
-
         if member.status in ["creator", "administrator", "member"]:
             bot.send_message(
                 message.chat.id,
@@ -41,7 +45,6 @@ def start(message):
             return
         else:
             raise Exception()
-
     except:
         markup = InlineKeyboardMarkup()
         markup.add(
@@ -57,14 +60,12 @@ def start(message):
             reply_markup=markup,
         )
 
-
 # ---------------- Callback handler -----------------
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call: CallbackQuery):
     if call.data == "subscribed":
         try:
             member = bot.get_chat_member(CHANNEL_USERNAME, call.from_user.id)
-
             if member.status in ["creator", "administrator", "member"]:
                 bot.answer_callback_query(call.id, "Obuna tasdiqlandi! ✅")
                 bot.send_message(
@@ -80,18 +81,15 @@ def callback_inline(call: CallbackQuery):
                 call.id, "❌ Xatolik! Qayta urinib ko‘ring.", show_alert=True
             )
 
-
 # ---------------- Video yuklash handler -----------------
 @bot.message_handler(func=lambda m: True)
 def download_instagram_video(message):
     url = message.text.strip()
-
     if "instagram.com" not in url:
         bot.reply_to(message, "❌ Instagramdan video linkini yuboring!")
         return
 
     loading_msg = bot.send_message(message.chat.id, "⏳ Video yuklanmoqda...")
-
     filename = f"{uuid.uuid4()}.mp4"
     ydl_opts = {"format": "mp4", "outtmpl": filename, "quiet": True}
 
@@ -113,7 +111,6 @@ def download_instagram_video(message):
             text=f"❌ Video topilmadi yoki link noto‘g‘ri!\n{e}",
         )
 
-
 # ---------------- /help handler -----------------
 @bot.message_handler(commands=["help"])
 def help_command(message):
@@ -127,29 +124,27 @@ def help_command(message):
     )
     bot.send_message(message.chat.id, help_text, parse_mode="Markdown")
 
-
 # ---------------- /about handler -----------------
 @bot.message_handler(commands=["about"])
 def about_command(message):
     about_text = (
         "🤖 *Nsaved Bot*\n\n"
         "🔥 Assalomu alaykum. @Nsaved_bot ga Xush kelibsiz. Bot orqali quyidagilarni yuklab olishingiz mumkin:\n"
-        "• Instagram - post, reels va Stories + audio bilan"
-        "Botda biror muammo bo'lsa: @thexamidovs"
-        "Padderkada>>>Telegram kanal: @aclubnc"
+        "• Instagram - post, reels va Stories + audio bilan\n"
+        "Botda biror muammo bo'lsa: @thexamidovs\n"
+        "Padderkada>>>Telegram kanal: @aclubnc\n"
         "Dasturchi: N.Xamidjonov\n"
     )
     bot.send_message(message.chat.id, about_text, parse_mode="Markdown")
 
+# ---------------- WEBHOOKNI SET QILISH (Render URL bilan) -----------------
+@app.before_first_request
+def set_webhook():
+    WEBHOOK_URL = f"https://YOUR_RENDER_SERVICE_NAME.onrender.com/telegram_webhook"
+    bot.remove_webhook()
+    bot.set_webhook(url=WEBHOOK_URL)
 
-# ---------------- BOTNI THREAD ICHIDA ISHLATISH -----------------
-def run_bot():
-    bot.infinity_polling()
-
-
-threading.Thread(target=run_bot).start()
-
-# ---------------- FLASK SERVERNI ISHLATISH -----------------
+# ---------------- RUN FLASK -----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
