@@ -34,7 +34,6 @@ def telegram_webhook():
 @bot.message_handler(commands=["start"])
 def start(message):
     user_id = message.from_user.id
-
     try:
         member = bot.get_chat_member(CHANNEL_USERNAME, user_id)
         if member.status in ["creator", "administrator", "member"]:
@@ -138,11 +137,9 @@ def about_command(message):
     bot.send_message(message.chat.id, about_text, parse_mode="Markdown")
 
 # ---------------- WEBHOOKNI SET QILISH (Render URL bilan) -----------------
-@app.before_first_request
-def set_webhook():
-    WEBHOOK_URL = "https://nsavedbot.onrender.com/telegram_webhook"
-    bot.remove_webhook()
-    bot.set_webhook(url=WEBHOOK_URL)
+WEBHOOK_URL = "https://nsaved.onrender.com/telegram_webhook"  # o'z URLingiz bilan almashtiring
+bot.remove_webhook()
+bot.set_webhook(url=WEBHOOK_URL)
 
 # ---------------- RUN FLASK -----------------
 if __name__ == "__main__":
