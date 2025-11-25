@@ -10,7 +10,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 
 CHANNEL_USERNAME = "@aclubnc"
-CAPTION_TEXT = "Telegramda video yuklab beradigan eng zo'r bot | @Nsaved_bot"
+CAPTION_TEXT = "Telegramda video yuklab beradigan eng zo'r botlardan biri, 🚀| @Nsaved_bot"
 
 # ---------------- /start handler -----------------
 @bot.message_handler(commands=["start"])
@@ -23,7 +23,7 @@ def start(message):
         if member.status in ["creator", "administrator", "member"]:
             bot.send_message(
                 message.chat.id,
-                "Siz kanalga obuna bo‘ldingiz ✅\n\nInstagram video linkini yuboring 🚀"
+                "Siz kanalga obuna bo‘ldingiz ✅\n\nInstagramdan video linkini yuboring 🚀"
             )
             return
         else:
@@ -60,7 +60,7 @@ def callback_inline(call: CallbackQuery):
                 bot.answer_callback_query(call.id, "Obuna tasdiqlandi! ✅")
                 bot.send_message(
                     call.message.chat.id,
-                    "Siz kanalga obuna bo‘ldingiz! ✅\n\nInstagram link yuboring 🚀"
+                    "Siz kanalga obuna bo‘ldingiz! ✅\n\nInstagramdan link yuboring 🚀"
                 )
             else:
                 bot.answer_callback_query(call.id, "❌ Hali obuna bo‘lmadiz!", show_alert=True)
@@ -73,7 +73,7 @@ def download_instagram_video(message):
     url = message.text.strip()
 
     if "instagram.com" not in url:
-        bot.reply_to(message, "❌ Instagram link yuboring!")
+        bot.reply_to(message, "❌ Instagramdan video linkini yuboring!")
         return
 
     loading_msg = bot.send_message(message.chat.id, "⏳ Video yuklanmoqda...")
