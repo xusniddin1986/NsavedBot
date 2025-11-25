@@ -123,6 +123,7 @@ def help_command(message):
         "/help - Yordam ma'lumotlari\n"
         "/about - Bot haqida ma'lumot\n\n"
         "Instagramdan video linkini yuborib videoni sifatli yuklab olishingiz mumkin 🚀"
+        "Botda biror muammo bo'lsa: @thexamidovs"
     )
     bot.send_message(message.chat.id, help_text, parse_mode="Markdown")
 
@@ -132,10 +133,11 @@ def help_command(message):
 def about_command(message):
     about_text = (
         "🤖 *Nsaved Bot*\n\n"
-        "Instagram va Telegram linklardan video yuklab beradigan bot.\n"
+        "🔥 Assalomu alaykum. @Nsaved_bot ga Xush kelibsiz. Bot orqali quyidagilarni yuklab olishingiz mumkin:\n"
+        "• Instagram - post, reels va Stories + audio bilan"
         "Botda biror muammo bo'lsa: @thexamidovs"
-        "Telegram kanal: @aclubnc"
-        "Dasturchi: Nabiyulloh\n"
+        "Padderkada>>>Telegram kanal: @aclubnc"
+        "Dasturchi: N.Xamidjonov\n"
     )
     bot.send_message(message.chat.id, about_text, parse_mode="Markdown")
 
