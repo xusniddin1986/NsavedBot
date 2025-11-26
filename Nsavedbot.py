@@ -17,6 +17,12 @@ CAPTION_TEXT = (
     "Telegramda video yuklab beradigan eng zo'r botlardan biri 🚀 | @Nsaved_bot"
 )
 
+# ---------------- ADMIN ID VA STATISTIKA -----------------
+ADMIN_ID = 5767267885
+users = set()
+total_downloads = 0
+today_downloads = 0
+
 # ---------------- HOME PAGE -----------------
 @app.route("/")
 def home():
@@ -80,9 +86,86 @@ def callback_inline(call: CallbackQuery):
                 call.id, "❌ Xatolik! Qayta urinib ko‘ring.", show_alert=True
             )
 
-# ---------------- Video yuklash handler -----------------
+# ---------------- /help handler -----------------
+@bot.message_handler(commands=["help"])
+def help_command(message):
+    help_text = (
+        "🛠️ *Bot yordamchisi*\n\n"
+        "/start - Botni ishga tushurish\n"
+        "/help - Yordam ma'lumotlari\n"
+        "/about - Bot haqida ma'lumot\n\n"
+        "Instagramdan video linkini yuborib videoni sifatli yuklab olishingiz mumkin 🚀\n"
+        "Botda biror muammo bo'lsa: @thexamidovs"
+    )
+    bot.send_message(message.chat.id, help_text, parse_mode="Markdown")
+
+# ---------------- /about handler -----------------
+@bot.message_handler(commands=["about"])
+def about_command(message):
+    about_text = (
+        "🤖 *Nsaved Bot*\n\n"
+        "🔥 Assalomu alaykum. @Nsaved_bot ga Xush kelibsiz. Bot orqali quyidagilarni yuklab olishingiz mumkin:\n"
+        "• Instagram - post, reels va stories + audio bilan\n\n"
+        "Padderkada >>> Telegram kanal: @aclubnc\n"
+        "Dasturchi: N.Xamidjonov\n"
+    )
+    bot.send_message(message.chat.id, about_text, parse_mode="Markdown")
+
+# ---------------- ADMIN PANEL HANDLER -----------------
+@bot.message_handler(commands=["admin", "panel"])
+def admin_panel(message):
+    if message.from_user.id != ADMIN_ID:
+        return bot.send_message(message.chat.id, "❌ Siz admin emassiz!")
+    
+    kb = InlineKeyboardMarkup()
+    kb.add(InlineKeyboardButton("📊 Umumiy statistika", callback_data="total_stats"))
+    kb.add(InlineKeyboardButton("📅 Bugungi statistika", callback_data="today_stats"))
+    kb.add(InlineKeyboardButton("🏆 TOP foydalanuvchilar", callback_data="top_users"))
+    kb.add(InlineKeyboardButton("👤 Foydalanuvchilar ro‘yxati", callback_data="user_list"))
+    
+    bot.send_message(message.chat.id, "🛠 *Admin Panel*", reply_markup=kb, parse_mode="Markdown")
+
+# ---------------- CALLBACK FOR ADMIN PANEL -----------------
+@bot.callback_query_handler(func=lambda call: call.data in ["total_stats", "today_stats", "top_users", "user_list"])
+def admin_stats(call):
+    if call.from_user.id != ADMIN_ID:
+        return bot.answer_callback_query(call.id, "⛔ Ruxsat yo‘q!", show_alert=True)
+
+    if call.data == "total_stats":
+        text = (
+            "📊 *Umumiy statistika*\n\n"
+            f"👤 Foydalanuvchilar: {len(users)} ta\n"
+            f"📥 Yuklangan videolar: {total_downloads} ta"
+        )
+        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+
+    elif call.data == "today_stats":
+        text = (
+            "📅 *Bugungi statistika*\n\n"
+            f"📥 Bugun yuklangan videolar: {today_downloads} ta"
+        )
+        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+
+    elif call.data == "top_users":
+        text = "🏆 *TOP foydalanuvchilar*\n\n"
+        text += "Hozircha qo‘shilmagan 😅\nAgar xohlasang qo‘shib beraman!"
+        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+
+    elif call.data == "user_list":
+        text = "👤 *Foydalanuvchilar ro‘yxati*\n\n"
+        if len(users) == 0:
+            text += "Hozircha hech kim yo‘q."
+        else:
+            for uid in users:
+                text += f"- `{uid}`\n"
+        bot.send_message(call.message.chat.id, text, parse_mode="Markdown")
+
+# ---------------- VIDEO DOWNLOAD HANDLER (ENG PASTDA) -----------------
 @bot.message_handler(func=lambda m: True)
 def download_instagram_video(message):
+    global total_downloads, today_downloads
+    users.add(message.from_user.id)
+
     url = message.text.strip()
     if "instagram.com" not in url:
         bot.reply_to(message, "❌ Instagramdan video linkini yuboring!")
@@ -101,6 +184,8 @@ def download_instagram_video(message):
         with open(filename, "rb") as video:
             bot.send_video(message.chat.id, video, caption=CAPTION_TEXT)
 
+        total_downloads += 1
+        today_downloads += 1
         os.remove(filename)
 
     except Exception as e:
@@ -110,34 +195,8 @@ def download_instagram_video(message):
             text=f"❌ Video topilmadi yoki link noto‘g‘ri!\n{e}",
         )
 
-# ---------------- /help handler -----------------
-@bot.message_handler(commands=["help"])
-def help_command(message):
-    help_text = (
-        "🛠️ *Bot yordamchisi*\n\n"
-        "/start - Botni ishga tushurish\n"
-        "/help - Yordam ma'lumotlari\n"
-        "/about - Bot haqida ma'lumot\n\n"
-        "Instagramdan video linkini yuborib videoni sifatli yuklab olishingiz mumkin 🚀"
-        "Botda biror muammo bo'lsa: @thexamidovs"
-    )
-    bot.send_message(message.chat.id, help_text, parse_mode="Markdown")
-
-# ---------------- /about handler -----------------
-@bot.message_handler(commands=["about"])
-def about_command(message):
-    about_text = (
-        "🤖 *Nsaved Bot*\n\n"
-        "🔥 Assalomu alaykum. @Nsaved_bot ga Xush kelibsiz. Bot orqali quyidagilarni yuklab olishingiz mumkin:\n"
-        "• Instagram - post, reels va Stories + audio bilan\n"
-        "Botda biror muammo bo'lsa: @thexamidovs\n"
-        "Padderkada>>>Telegram kanal: @aclubnc\n"
-        "Dasturchi: N.Xamidjonov\n"
-    )
-    bot.send_message(message.chat.id, about_text, parse_mode="Markdown")
-
-# ---------------- WEBHOOKNI SET QILISH (Render URL bilan) -----------------
-WEBHOOK_URL = "https://nsaved.onrender.com/telegram_webhook"  # o'z URLingiz bilan almashtiring
+# ---------------- WEBHOOK -----------------
+WEBHOOK_URL = "https://nsaved.onrender.com/telegram_webhook"
 bot.remove_webhook()
 bot.set_webhook(url=WEBHOOK_URL)
 
